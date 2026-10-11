@@ -27,6 +27,9 @@ A fast, async-first DynamoDB ORM for Python with a Rust core.
 
 ## Installation
 
+pydynox supports Python 3.11–3.15. Wheels are built for Linux (glibc and musl)
+and macOS on x86_64 and ARM64.
+
 ```bash
 pip install pydynox
 ```

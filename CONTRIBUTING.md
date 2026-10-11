@@ -21,8 +21,8 @@ If you're using AI tools to contribute, check the `.ai/` folder:
 ### Requirements
 
 - Rust (latest stable)
-- Python 3.9+
-- maturin
+- Python 3.11–3.15
+- maturin 1.14 or later
 
 ### Install Rust
 
@@ -41,7 +41,7 @@ python -m venv .venv
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
 # Install maturin and dev dependencies
-pip install maturin
+pip install "maturin>=1.14,<2.0"
 pip install -e ".[dev]"
 ```
 

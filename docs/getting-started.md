@@ -11,6 +11,9 @@ This guide walks you through installing pydynox and creating your first model. B
 
 ## Installation
 
+pydynox supports Python 3.11–3.15. Wheels are built for Linux (glibc and musl)
+and macOS on x86_64 and ARM64.
+
 === "pip"
     ```bash
     pip install pydynox
