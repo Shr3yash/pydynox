@@ -2,6 +2,8 @@
 
 Welcome! This folder has everything you need to contribute to pydynox.
 
+Start with [AGENTS.md](../AGENTS.md) for setup, repository layout, and build commands.
+
 ## Quick Start
 
 1. Read `project-context.md` to understand what pydynox is
@@ -14,19 +16,22 @@ Welcome! This folder has everything you need to contribute to pydynox.
 |------|----------------|
 | `project-context.md` | What is pydynox, tech stack, goals |
 | `coding-guidelines.md` | Python vs Rust decisions, code style |
+| `async-first.md` | Async defaults, sync methods, and API parity |
 | `testing-guidelines.md` | How to write and run tests |
 | `dependencies.md` | When to add dependencies |
 | `common-mistakes.md` | Things that break the build |
 | `writing-style.md` | How to write docs and comments |
+| `acceptance-criteria.md` | Library validation checklist |
 
 ## Critical Commands
 
 ```bash
 # Build the project (NEVER use cargo build)
-uv run maturin develop
+uv run --with maturin maturin develop
 
 # Run tests
-uv run pytest tests/ -v
+uv run pytest tests/unit/ -v
+uv run pytest tests/integration/ -v  # Requires Docker for LocalStack
 
 # Format code
 cargo fmt

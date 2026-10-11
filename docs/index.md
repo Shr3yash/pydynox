@@ -101,6 +101,8 @@ pydynox does what you'd expect from a DynamoDB ORM: models, CRUD, queries, batch
 
 Ready to try it? Head to [Getting started](getting-started.md) for installation and your first model.
 
+For a text index of the guides and API reference, see [llms.txt](https://ferrumio.github.io/pydynox/llms.txt).
+
 ## Guides
 
 ### Core

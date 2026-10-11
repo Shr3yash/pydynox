@@ -9,7 +9,7 @@ cargo build
 
 **Right:**
 ```bash
-uv run maturin develop
+uv run --with maturin maturin develop
 ```
 
 This is a PyO3 project. `cargo build` will not produce a usable Python module. Only maturin knows how to build PyO3 bindings correctly.

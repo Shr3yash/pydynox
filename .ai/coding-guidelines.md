@@ -316,26 +316,26 @@ pydynox/python/pydynox/
 
 ### Type Hints
 
-Always use type hints. mypy MUST pass with zero errors.
+Always use type hints. ty MUST pass with zero errors.
 
 ```python
 # Good
 def get_item(self, pk: str, sk: Optional[str] = None) -> Optional["Model"]:
     ...
 
-# Bad - mypy will fail
+# Bad - missing type hints
 def get_item(self, pk, sk=None):
     ...
 ```
 
 Use `from __future__ import annotations` at the top of files.
 
-#### mypy Rules
+#### Type Checking Rules
 
 - All functions must have type hints for parameters and return values
 - Use `# type: ignore` only when absolutely necessary, and add a comment explaining why
 - Avoid `Any` type when possible. If you must use it, be specific about why
-- Run `uv run mypy .` before committing
+- Run `uv run ty check python/pydynox/` before committing
 
 ### Docstrings
 
@@ -419,7 +419,7 @@ All Python code MUST pass these checks before commit:
 ```bash
 uv run ruff check .          # Linting - must pass with zero errors
 uv run ruff format --check . # Formatting - must be formatted
-uv run mypy .                # Type checking - must pass with zero errors
+uv run ty check python/pydynox/ # Type checking - must pass with zero errors
 ```
 
 These are not optional. Fix all errors before submitting code.
@@ -430,7 +430,7 @@ Before committing Python code:
 
 1. `uv run ruff format .` - Format code
 2. `uv run ruff check --fix .` - Fix lint errors
-3. `uv run mypy .` - Check types
+3. `uv run ty check python/pydynox/` - Check types
 4. `uv run pytest` - Run tests
 
 All four must pass. No exceptions.
@@ -451,8 +451,8 @@ uv run ruff check .
 uv run ruff format .
 
 # Type check Python code
-uv run mypy .
+uv run ty check python/pydynox/
 
 # Build release
-uv run maturin develop --release
+uv run --with maturin maturin develop --release
 ```

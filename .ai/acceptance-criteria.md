@@ -50,10 +50,10 @@ uv run ty check python/
 
 Must show "All checks passed!"
 
-### 5. Rust Build
+### 5. Python Extension Build
 
 ```bash
-cargo build
+uv run --with maturin maturin develop
 ```
 
 Must compile without errors.
@@ -106,6 +106,6 @@ uv run pytest tests/integration/ -v
 uv run python tests/examples/run_all_examples.py
 
 # Rust
-cargo build
+uv run --with maturin maturin develop
 cargo clippy
 ```

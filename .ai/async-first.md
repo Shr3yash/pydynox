@@ -2,7 +2,7 @@
 
 pydynox is async-first. This means:
 
-1. Every sync method has an async version with `async_` prefix
+1. Methods are async by default; synchronous versions use the `sync_` prefix
 2. Async and sync APIs must have feature parity
 3. New features start with async, then add sync
 4. Docs show async examples first, sync as alternative
@@ -25,25 +25,25 @@ This means pydynox async operations are truly non-blocking.
 
 When adding a new feature, ensure both sync and async versions have:
 
-- Same method signature (except `async_` prefix)
+- Same method signature (except `sync_` prefix)
 - Same return type (or async equivalent)
 - Same properties (e.g., `last_evaluated_key` on query results)
 - Same behavior
 
 ## Async method naming
 
-| Sync | Async |
-|------|-------|
-| `model.save()` | `model.async_save()` |
-| `model.delete()` | `model.async_delete()` |
-| `model.update()` | `model.async_update()` |
-| `Model.get()` | `Model.async_get()` |
-| `Model.query()` | `Model.async_query()` |
-| `Model.scan()` | `Model.async_scan()` |
-| `Model.batch_get()` | `Model.async_batch_get()` |
-| `BatchWriter` | `AsyncBatchWriter` |
-| `client.put_item()` | `client.async_put_item()` |
-| `client.get_item()` | `client.async_get_item()` |
+| Async (default) | Sync |
+|-----------------|------|
+| `await model.save()` | `model.sync_save()` |
+| `await model.delete()` | `model.sync_delete()` |
+| `await model.update()` | `model.sync_update()` |
+| `await Model.get()` | `Model.sync_get()` |
+| `Model.query()` | `Model.sync_query()` |
+| `Model.scan()` | `Model.sync_scan()` |
+| `await Model.batch_get()` | `Model.sync_batch_get()` |
+| `BatchWriter` | `SyncBatchWriter` |
+| `await client.put_item()` | `client.sync_put_item()` |
+| `await client.get_item()` | `client.sync_get_item()` |
 
 ## Result classes
 

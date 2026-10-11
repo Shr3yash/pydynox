@@ -9,7 +9,7 @@ uv run ruff check tests/       # Lint tests
 uv run ruff format tests/      # Format tests
 ```
 
-Note: mypy is NOT required for tests. Type hints in tests are optional.
+Type hints in tests are optional. CI runs ty on `python/pydynox/`, not on tests.
 
 ## Test Structure
 
@@ -20,7 +20,7 @@ pydynox/tests/
 │   ├── test_model.py
 │   ├── test_config.py
 │   └── test_hooks.py
-└── integration/      # Integration tests (real DynamoDB or moto)
+└── integration/      # Integration tests (LocalStack through testcontainers)
     ├── conftest.py
     ├── hooks/
     └── size/
@@ -40,7 +40,8 @@ uv run pytest tests/integration/operations/test_get_item.py -v
 uv run pytest tests/ -v --ignore=tests/benchmark
 ```
 
-Tests use moto server (DynamoDB mock). The conftest.py starts it automatically.
+Integration tests require Docker. Their `conftest.py` starts LocalStack through
+testcontainers. Unit tests use mocks or the in-memory backend and do not need Docker.
 
 ## Why Python Tests?
 

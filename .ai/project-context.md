@@ -21,9 +21,9 @@ Every decision about where code lives should consider performance. See `coding-g
 
 ## Project Info
 
-- License: MIT
+- License: Apache-2.0
 - Hosted on: GitHub
-- Status: Early development (not ready for production)
+- Status: Stable (see `pyproject.toml` for the current version and Python requirement)
 
 ## Building the Project
 
@@ -33,13 +33,13 @@ Always use maturin:
 
 ```bash
 # Development build
-uv run maturin develop
+uv run --with maturin maturin develop
 
 # Release build (faster)
-uv run maturin develop --release
+uv run --with maturin maturin develop --release
 
 # Build wheel for distribution
-uv run maturin build --release
+uv run --with maturin maturin build --release
 ```
 
 The `cargo build` command will not produce a usable Python module. Only maturin knows how to build PyO3 bindings correctly.
@@ -50,26 +50,26 @@ The `cargo build` command will not produce a usable Python module. Only maturin 
 pydynox/
 ├── src/                    # Rust code
 │   ├── lib.rs             # Main module, exports to Python
-│   ├── client.rs          # DynamoDB client
-│   ├── basic_operations.rs # put, get, delete, update, query
-│   ├── batch_operations.rs # batch_write, batch_get
-│   ├── transaction_operations.rs # transact_write
+│   ├── client/            # DynamoDB client
+│   ├── basic_operations/  # put, get, delete, update, query
+│   ├── batch_operations/  # batch_write, batch_get
+│   ├── transaction_operations/ # transact_write, transact_get
 │   ├── serialization.rs   # Python <-> DynamoDB conversion
 │   ├── compression.rs     # zstd compression
-│   ├── encryption.rs      # AES encryption
+│   ├── kms/               # KMS encryption
 │   └── errors.rs          # Custom error types
 ├── python/pydynox/        # Python wrappers
 │   ├── __init__.py        # Public API exports
 │   ├── model.py           # Model base class
-│   ├── client.py          # DynamoDBClient wrapper
-│   ├── attributes.py      # Field types
+│   ├── client/            # DynamoDBClient wrappers
+│   ├── attributes/        # Field types
 │   ├── exceptions.py      # Custom exceptions
 │   ├── _internal/         # Internal helpers
 │   │   ├── _compression.py # Compression functions
 │   │   └── _encryption.py  # Encryption functions
 │   └── integrations/      # Pydantic, etc.
 ├── tests/
-│   ├── integration/       # Integration tests (need moto server)
+│   ├── integration/       # Integration tests (need Docker for LocalStack)
 │   └── unit/              # Unit tests
 ├── Cargo.toml             # Rust dependencies
 └── pyproject.toml         # Python config
