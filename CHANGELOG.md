@@ -1,6 +1,38 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [1.7.0] - 2026-10-11
+
+
+### CI/CD
+
+- bump CodSpeedHQ/action from 5.2.1 to 5.4.0 (#506)
+
+
+### Documentation
+
+- update changelog for v1.6.0 (#502)
+- add agent instructions and generate llms.txt (#511)
+
+
+### Features
+
+- add Python 3.15 support (#513)
+
+
+### Miscellaneous
+
+- bump urllib3 from 2.7.0 to 2.8.0 (#507)
+- bump mako from 1.3.12 to 1.4.2 (#508)
+- bump v1.7.0 (#514)
+
+
+### Deps
+
+- bump cmov from 0.5.3 to 0.5.4 (#503)
+- bump the dev-dependencies group with 2 updates (#505)
+- bump the rust-dependencies group with 2 updates (#504)
+- bump rustls from 0.23.40 to 0.23.45 (#509)
 ## [1.6.0] - 2026-09-30
 
 
