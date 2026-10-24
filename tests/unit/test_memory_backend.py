@@ -629,3 +629,123 @@ def test_condition_with_and_requires_every_clause():
                 atomic=[Aggregate.total.add(1)],
                 condition=(Aggregate.total < 100) & Aggregate.total.not_exists(),
             )
+
+
+def test_sync_batch_get_projection_returns_only_requested_attributes():
+    """Test direct sync batch get keeps only projected attributes."""
+    # GIVEN stored items with a nested map
+    items = [
+        {"pk": f"USER#{i}", "name": f"User {i}", "age": i, "address": {"city": "Paris", "zip": "1"}}
+        for i in range(3)
+    ]
+
+    with MemoryBackend() as backend:
+        backend.client.sync_batch_write("users", put_items=items)
+
+        # WHEN batch getting with a projection (reserved word and nested path)
+        results = backend.client.sync_batch_get(
+            "users",
+            [{"pk": f"USER#{i}"} for i in range(3)],
+            projection=["name", "address.city"],
+        )
+
+        # THEN only the projected attributes come back
+        assert len(results) == 3
+        assert all(set(r) == {"name", "address"} for r in results)
+        assert all(r["address"] == {"city": "Paris"} for r in results)
+
+        # AND stored items are untouched
+        full = backend.client.sync_batch_get("users", [{"pk": "USER#0"}])
+        assert set(full[0]) == {"pk", "name", "age", "address"}
+
+
+@pytest.mark.asyncio
+async def test_model_batch_get_projection_with_memory_backend():
+    """Test Model batch get projection, with an aliased field, in memory."""
+
+    # GIVEN a model with an aliased attribute and stored items
+    class Profile(Model):
+        model_config = ModelConfig(table="profiles")
+        pk = StringAttribute(partition_key=True)
+        name = StringAttribute()
+        email = StringAttribute(alias="em")
+
+    with MemoryBackend():
+        await Profile(pk="P#1", name="Ann", email="ann@example.com").save()
+        await Profile(pk="P#2", name="Bob", email="bob@example.com").save()
+        keys = [{"pk": "P#1"}, {"pk": "P#2"}]
+
+        # WHEN batch getting with a projection on the Python field name
+        profiles = await Profile.batch_get(keys, projection=["pk", "email"])
+        synced = Profile.sync_batch_get(keys, projection=["pk", "email"])
+        dicts = await Profile.batch_get(keys, projection=["name"], as_dict=True)
+
+        # THEN only projected fields are populated, aliases are honoured
+        assert {p.email for p in profiles} == {"ann@example.com", "bob@example.com"}
+        assert all(p.name is None for p in profiles)
+        assert {p.email for p in synced} == {"ann@example.com", "bob@example.com"}
+        assert all(set(d) == {"name"} for d in dicts)
+
+
+class Account(Model):
+    """Test model with a required field and a field with a default."""
+
+    model_config = ModelConfig(table="accounts")
+    pk = StringAttribute(partition_key=True)
+    name = StringAttribute(required=True)
+    status = StringAttribute(default="active")
+    note = StringAttribute()
+
+
+async def _batch_get_accounts(sync: bool, projection: list[str], as_dict: bool = False) -> list:
+    keys = [{"pk": "A#1"}]
+    if sync:
+        return Account.sync_batch_get(keys, projection=projection, as_dict=as_dict)
+    return await Account.batch_get(keys, projection=projection, as_dict=as_dict)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("sync", [False, True], ids=["async", "sync"])
+async def test_model_batch_get_projection_left_out_fields_get_default_or_none(sync):
+    """Left out fields get their default, or None when they have no default."""
+    with MemoryBackend():
+        # GIVEN a stored account where status and note differ from their defaults
+        await Account(pk="A#1", name="Ann", status="blocked", note="vip").save()
+
+        # WHEN batch getting without status and note
+        accounts = await _batch_get_accounts(sync, ["pk", "name"])
+
+        # THEN status gets the default, not the stored value, and note is None
+        assert len(accounts) == 1
+        assert accounts[0].name == "Ann"
+        assert accounts[0].status == "active"
+        assert accounts[0].note is None
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("sync", [False, True], ids=["async", "sync"])
+async def test_model_batch_get_projection_left_out_required_field_raises(sync):
+    """Leaving out a required field fails when the model is created."""
+    with MemoryBackend():
+        # GIVEN a stored account
+        await Account(pk="A#1", name="Ann").save()
+
+        # WHEN batch getting without the required name
+        # THEN creating the model fails
+        with pytest.raises(ValueError, match="'name' is required"):
+            await _batch_get_accounts(sync, ["pk"])
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("sync", [False, True], ids=["async", "sync"])
+async def test_model_batch_get_projection_as_dict_has_only_projected_fields(sync):
+    """With as_dict=True there are no defaults and no required checks."""
+    with MemoryBackend():
+        # GIVEN a stored account
+        await Account(pk="A#1", name="Ann", status="blocked", note="vip").save()
+
+        # WHEN batch getting only the key as dicts
+        items = await _batch_get_accounts(sync, ["pk"], as_dict=True)
+
+        # THEN only the projected field is in the dict
+        assert items == [{"pk": "A#1"}]

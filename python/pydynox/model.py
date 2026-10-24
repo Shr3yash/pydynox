@@ -279,6 +279,7 @@ class Model(ModelBase, metaclass=ModelMeta):
         keys: list[dict[str, Any]],
         consistent_read: bool | None = None,
         as_dict: Literal[False] = False,
+        projection: list[str] | None = None,
     ) -> list[M]: ...
 
     @overload
@@ -288,6 +289,7 @@ class Model(ModelBase, metaclass=ModelMeta):
         keys: list[dict[str, Any]],
         consistent_read: bool | None = None,
         as_dict: Literal[True] = ...,
+        projection: list[str] | None = None,
     ) -> list[dict[str, Any]]: ...
 
     @overload
@@ -297,6 +299,7 @@ class Model(ModelBase, metaclass=ModelMeta):
         keys: list[dict[str, Any]],
         consistent_read: bool | None = None,
         as_dict: bool = ...,
+        projection: list[str] | None = None,
     ) -> list[M] | list[dict[str, Any]]: ...
 
     @classmethod
@@ -305,6 +308,7 @@ class Model(ModelBase, metaclass=ModelMeta):
         keys: list[dict[str, Any]],
         consistent_read: bool | None = None,
         as_dict: bool = False,
+        projection: list[str] | None = None,
     ) -> list[M] | list[dict[str, Any]]:
         """Sync batch get multiple items by their keys.
 
@@ -312,6 +316,9 @@ class Model(ModelBase, metaclass=ModelMeta):
             keys: List of key dicts (each with partition_key and optional sort_key).
             consistent_read: Use strongly consistent read.
             as_dict: If True, return dicts instead of Model instances.
+            projection: List of attribute names to fetch. Other fields get their
+                default or None. Required fields must be included.
+                Key attributes are not added for you.
 
         Returns:
             List of model instances or dicts.
@@ -328,7 +335,7 @@ class Model(ModelBase, metaclass=ModelMeta):
             >>> # Return as dicts for better performance
             >>> users = User.sync_batch_get(keys, as_dict=True)
         """
-        return sync_batch_get(cls, keys, consistent_read, as_dict)
+        return sync_batch_get(cls, keys, consistent_read, as_dict, projection)
 
     @overload
     @classmethod
@@ -337,6 +344,7 @@ class Model(ModelBase, metaclass=ModelMeta):
         keys: list[dict[str, Any]],
         consistent_read: bool | None = None,
         as_dict: Literal[False] = False,
+        projection: list[str] | None = None,
     ) -> list[M]: ...
 
     @overload
@@ -346,6 +354,7 @@ class Model(ModelBase, metaclass=ModelMeta):
         keys: list[dict[str, Any]],
         consistent_read: bool | None = None,
         as_dict: Literal[True] = ...,
+        projection: list[str] | None = None,
     ) -> list[dict[str, Any]]: ...
 
     @overload
@@ -355,6 +364,7 @@ class Model(ModelBase, metaclass=ModelMeta):
         keys: list[dict[str, Any]],
         consistent_read: bool | None = None,
         as_dict: bool = ...,
+        projection: list[str] | None = None,
     ) -> list[M] | list[dict[str, Any]]: ...
 
     @classmethod
@@ -363,6 +373,7 @@ class Model(ModelBase, metaclass=ModelMeta):
         keys: list[dict[str, Any]],
         consistent_read: bool | None = None,
         as_dict: bool = False,
+        projection: list[str] | None = None,
     ) -> list[M] | list[dict[str, Any]]:
         """Async batch get multiple items by their keys (default).
 
@@ -370,6 +381,9 @@ class Model(ModelBase, metaclass=ModelMeta):
             keys: List of key dicts (each with partition_key and optional sort_key).
             consistent_read: Use strongly consistent read.
             as_dict: If True, return dicts instead of Model instances.
+            projection: List of attribute names to fetch. Other fields get their
+                default or None. Required fields must be included.
+                Key attributes are not added for you.
 
         Returns:
             List of model instances or dicts.
@@ -383,7 +397,7 @@ class Model(ModelBase, metaclass=ModelMeta):
             >>> for user in users:
             ...     print(user.name)
         """
-        return await batch_get(cls, keys, consistent_read, as_dict)
+        return await batch_get(cls, keys, consistent_read, as_dict, projection)
 
     # ========== ASYNC CRUD (default) ==========
 

@@ -27,6 +27,23 @@ if TYPE_CHECKING:
     from pydynox._internal._metrics import OperationMetrics
 
 
+def _project_item(item: dict[str, Any], paths: list[list[str]]) -> dict[str, Any]:
+    """Keep only the requested attributes, like a DynamoDB projection."""
+    result: dict[str, Any] = {}
+    for parts in paths:
+        source: Any = item
+        for part in parts:
+            if not isinstance(source, dict) or part not in source:
+                break
+            source = source[part]
+        else:
+            target = result
+            for part in parts[:-1]:
+                target = target.setdefault(part, {})
+            target[parts[-1]] = copy.deepcopy(source)
+    return result
+
+
 def _decode_item(item: dict[str, Any], schema: NumberSchema | None) -> dict[str, Any]:
     """Match native number decoding without changing stored values."""
 
@@ -1261,6 +1278,7 @@ class MemoryClient:
     def _batch_get_item(
         self,
         request_items: dict[str, dict[str, Any]],
+        projection_paths: list[list[str]] | None = None,
     ) -> dict[str, Any]:
         """Batch get items from multiple tables."""
         start = time.time()
@@ -1276,7 +1294,8 @@ class MemoryClient:
                 key_str = self._make_key_string(key, table_name)
                 item = tbl.get(key_str)
                 if item:
-                    responses[table_name].append(copy.deepcopy(item))
+                    stored = _project_item(item, projection_paths) if projection_paths else item
+                    responses[table_name].append(copy.deepcopy(stored))
                     total_rcu += 1
 
         return {
@@ -1319,15 +1338,22 @@ class MemoryClient:
         table: str,
         keys: list[dict[str, Any]],
         consistent_read: bool = False,
+        projection: list[str] | None = None,
+        *,
+        _projection_paths: list[list[str]] | None = None,
     ) -> list[dict[str, Any]]:
         """Internal sync batch get implementation."""
+        paths = _projection_paths
+        if paths is None and projection:
+            paths = [path.split(".") for path in projection]
         result = self._batch_get_item(
             {
                 table: {
                     "Keys": keys,
                     "ConsistentRead": consistent_read,
                 }
-            }
+            },
+            paths,
         )
         return [
             _decode_item(item, self._number_schema) for item in result["Responses"].get(table, [])
@@ -1349,18 +1375,28 @@ class MemoryClient:
         table: str,
         keys: list[dict[str, Any]],
         consistent_read: bool = False,
+        projection: list[str] | None = None,
+        *,
+        _projection_paths: list[list[str]] | None = None,
     ) -> list[dict[str, Any]]:
         """Async batch get items."""
-        return self._do_batch_get(table, keys, consistent_read)
+        return self._do_batch_get(
+            table, keys, consistent_read, projection, _projection_paths=_projection_paths
+        )
 
     def sync_batch_get(
         self,
         table: str,
         keys: list[dict[str, Any]],
         consistent_read: bool = False,
+        projection: list[str] | None = None,
+        *,
+        _projection_paths: list[list[str]] | None = None,
     ) -> list[dict[str, Any]]:
         """Sync batch get items."""
-        return self._do_batch_get(table, keys, consistent_read)
+        return self._do_batch_get(
+            table, keys, consistent_read, projection, _projection_paths=_projection_paths
+        )
 
     async def batch_write(
         self,
