@@ -1,6 +1,53 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [1.8.0] - 2026-10-25
+
+
+### Bug Fixes
+
+- update vulnerable locked dependencies flagged by OpenSSF Scorecard (#537)
+- resolve pyright diagnostics in pydantic integration (#532)
+- make Model overload definitions pass strict type checks (#531)
+- default transact_write request token to a random UUID v4 (#538)
+- guard optional metrics in async query and scan results (#535)
+- accept S3File and AutoGenerate defaults, align BatchWriter client protocol (#533)
+
+
+### CI/CD
+
+- bump actions/download-artifact from 8.0.1 to 8.0.2 (#523)
+- bump astral-sh/setup-uv from 10.2.0 to 10.3.0 (#522)
+- bump CodSpeedHQ/action from 5.4.0 to 5.4.2 (#517)
+- bump github/codeql-action/upload-sarif from 4.38.2 to 4.38.3 (#520)
+- bump actions/upload-artifact from 7.0.1 to 7.0.2 (#521)
+- bump ossf/scorecard-action from 2.4.4 to 2.5.0 (#516)
+- bump CodSpeedHQ/action from 5.4.2 to 5.5.0 (#524)
+- bump github/codeql-action/upload-sarif from 4.38.3 to 4.39.0 (#526)
+
+
+### Documentation
+
+- update changelog for v1.7.0 (#515)
+
+
+### Features
+
+- add projection to batch_get (#528)
+- add wait_for_table_deleted and optional waiting on delete_table (#530)
+
+
+### Miscellaneous
+
+- remove unused type: ignore comments in client mixins (#534)
+- bump v1.8.0 (#539)
+
+
+### Deps
+
+- bump the rust-dependencies group with 4 updates (#518)
+- bump the dev-dependencies group with 2 updates (#519)
+- bump the rust-dependencies group with 3 updates (#525)
 ## [1.7.0] - 2026-10-11
 
 
