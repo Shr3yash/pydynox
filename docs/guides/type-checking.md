@@ -40,8 +40,21 @@ Each attribute returns a specific type:
 | `TTLAttribute` | `datetime` or `None` |
 | `CompressedAttribute` | `str` or `None` |
 | `EncryptedAttribute` | `str` or `None` |
-| `S3Attribute` | `S3Value` or `None` |
+| `S3Attribute` | `S3File`, `S3Value`, or `None` |
 | `VersionAttribute` | `int` or `None` |
+
+`S3Attribute` returns the assigned `S3File` until it is uploaded. After upload or loading from DynamoDB, it returns an `S3Value`. An unset attribute returns `None`.
+
+Type checkers cannot infer that `save()` changes the value. Use `isinstance` before reading uploaded metadata:
+
+```python
+from pydynox.attributes import S3Value
+
+await doc.save()
+uploaded = doc.content
+assert isinstance(uploaded, S3Value)
+print(uploaded.key)
+```
 
 ## CRUD Method Return Types
 

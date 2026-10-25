@@ -5,7 +5,7 @@ import tempfile
 from pathlib import Path
 
 from pydynox import Model, ModelConfig
-from pydynox.attributes import S3Attribute, S3File, StringAttribute
+from pydynox.attributes import S3Attribute, S3File, S3Value, StringAttribute
 
 
 class Document(Model):
@@ -27,7 +27,9 @@ async def main():
     doc.content = S3File(file_path)  # Name is taken from file
     await doc.save()
 
-    print(f"Uploaded: {doc.content.key}")
+    uploaded = doc.content
+    assert isinstance(uploaded, S3Value)
+    print(f"Uploaded: {uploaded.key}")
 
     # Cleanup
     file_path.unlink()

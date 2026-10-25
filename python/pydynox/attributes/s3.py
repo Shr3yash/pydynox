@@ -11,11 +11,13 @@ if TYPE_CHECKING:
     from pydynox.client import DynamoDBClient
 
 
-class S3Attribute(Attribute[S3Value | None]):
+class S3Attribute(Attribute[S3File | S3Value]):
     """Attribute that stores large files in S3.
 
     The file is uploaded to S3 on save, and metadata is stored in DynamoDB.
-    On read, returns an S3Value with methods to download or get presigned URL.
+    Reads return S3File before upload, S3Value after upload or loading from
+    DynamoDB, and None when unset. Narrow to S3Value to download the file or
+    get a presigned URL.
 
     Example:
         class Document(Model):
@@ -28,16 +30,19 @@ class S3Attribute(Attribute[S3Value | None]):
         # Upload
         doc = Document(pk="DOC#1", name="report.pdf")
         doc.content = S3File(b"...", name="report.pdf", content_type="application/pdf")
-        doc.save()
+        await doc.save()
 
         # Download (async)
-        doc = Document.get(pk="DOC#1")
-        data = await doc.content.get_bytes()
-        url = await doc.content.presigned_url(3600)
+        doc = await Document.get(pk="DOC#1")
+        assert doc is not None
+        content = doc.content
+        assert isinstance(content, S3Value)
+        data = await content.get_bytes()
+        url = await content.presigned_url(3600)
 
         # Download (sync)
-        data = doc.content.sync_get_bytes()
-        url = doc.content.sync_presigned_url(3600)
+        data = content.sync_get_bytes()
+        url = content.sync_presigned_url(3600)
     """
 
     attr_type: str = "M"  # Stored as Map in DynamoDB
