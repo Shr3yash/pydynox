@@ -79,6 +79,9 @@ jobs:
       - name: Test batch get request building
         run: cargo test --locked --test batch_get_request
 
+      - name: Test AssumeRole source credentials
+        run: cargo test --locked --test assume_role_profile
+
   build:
     name: Build (${{ matrix.os }} / py${{ matrix.python }})
     runs-on: ${{ matrix.os }}
